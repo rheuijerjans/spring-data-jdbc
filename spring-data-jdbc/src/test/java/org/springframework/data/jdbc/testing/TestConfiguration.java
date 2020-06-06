@@ -120,7 +120,8 @@ public class TestConfiguration {
 				relationResolver, //
 				conversions, //
 				new DefaultJdbcTypeFactory(template.getJdbcOperations()), //
-				dialect.getIdentifierProcessing());
+				dialect.getIdentifierProcessing(),
+				dialect.getVendorSpecificSupportedTypes());
 	}
 
 	@Bean

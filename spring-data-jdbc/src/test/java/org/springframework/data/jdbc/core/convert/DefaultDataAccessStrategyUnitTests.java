@@ -75,7 +75,7 @@ public class DefaultDataAccessStrategyUnitTests {
 		Dialect dialect = HsqlDbDialect.INSTANCE;
 
 		converter = new BasicJdbcConverter(context, relationResolver, new JdbcCustomConversions(),
-				new DefaultJdbcTypeFactory(jdbcOperations), dialect.getIdentifierProcessing());
+				new DefaultJdbcTypeFactory(jdbcOperations), dialect.getIdentifierProcessing(), dialect.getVendorSpecificSupportedTypes());
 		accessStrategy = new DefaultDataAccessStrategy( //
 				new SqlGeneratorSource(context, converter, dialect), //
 				context, //
@@ -122,7 +122,7 @@ public class DefaultDataAccessStrategyUnitTests {
 
 		JdbcConverter converter = new BasicJdbcConverter(context, relationResolver,
 				new JdbcCustomConversions(Arrays.asList(BooleanToStringConverter.INSTANCE, StringToBooleanConverter.INSTANCE)),
-				new DefaultJdbcTypeFactory(jdbcOperations), dialect.getIdentifierProcessing());
+				new DefaultJdbcTypeFactory(jdbcOperations), dialect.getIdentifierProcessing(), dialect.getVendorSpecificSupportedTypes());
 
 		DefaultDataAccessStrategy accessStrategy = new DefaultDataAccessStrategy( //
 				new SqlGeneratorSource(context, converter, dialect), //
@@ -153,7 +153,7 @@ public class DefaultDataAccessStrategyUnitTests {
 
 		JdbcConverter converter = new BasicJdbcConverter(context, relationResolver,
 				new JdbcCustomConversions(Arrays.asList(IdValueToStringConverter.INSTANCE)),
-				new DefaultJdbcTypeFactory(jdbcOperations), dialect.getIdentifierProcessing());
+				new DefaultJdbcTypeFactory(jdbcOperations), dialect.getIdentifierProcessing(), dialect.getVendorSpecificSupportedTypes());
 
 		DefaultDataAccessStrategy accessStrategy = new DefaultDataAccessStrategy( //
 				new SqlGeneratorSource(context, converter, dialect), //

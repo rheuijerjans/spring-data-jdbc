@@ -15,16 +15,17 @@
  */
 package org.springframework.data.jdbc.core.convert;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mapping.MappingException;
 import org.springframework.lang.Nullable;
 import org.springframework.util.LinkedCaseInsensitiveMap;
+
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Wrapper value object for a {@link java.sql.ResultSet} to be able to access raw values by
@@ -80,16 +81,34 @@ class ResultSetAccessor {
 	 * Returns the value if the result set contains the {@code columnName}.
 	 *
 	 * @param columnName the column name (label).
+	 * @param targetType
+	 * @param vendorSpecificSupportedTypes
 	 * @return
 	 * @see ResultSet#getObject(int)
 	 */
 	@Nullable
-	public Object getObject(String columnName) {
+	public Object getObject(String columnName,
+							Class<?> targetType,
+							Set<Class<?>> vendorSpecificSupportedTypes) {
 
 		try {
 
 			int index = findColumnIndex(columnName);
-			return index > 0 ? resultSet.getObject(index) : null;
+
+			// this is the jdbc ResultSet.
+			// Returns an sql.Timestamp by default
+			// For postgresql, if called with resultSet.getObject(index, OffsetDateTime.class), it will map correctly to OffsetDateTime.
+
+			if (index <= 0) {
+				return null;
+			}
+
+			if (vendorSpecificSupportedTypes.contains(targetType)) {
+				return resultSet.getObject(index, targetType);
+			}
+
+			return resultSet.getObject(index);
+
 		} catch (SQLException o_O) {
 			throw new MappingException(String.format("Could not read value %s from result set!", columnName), o_O);
 		}

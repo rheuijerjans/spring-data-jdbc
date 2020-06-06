@@ -20,6 +20,8 @@ import org.springframework.data.relational.core.mapping.PersistentPropertyPathEx
 import org.springframework.data.relational.core.mapping.RelationalPersistentProperty;
 import org.springframework.data.relational.core.sql.IdentifierProcessing;
 
+import java.util.Set;
+
 /**
  * {@link PropertyValueProvider} obtaining values from a {@link ResultSetAccessor}.
  *
@@ -29,6 +31,7 @@ import org.springframework.data.relational.core.sql.IdentifierProcessing;
 class JdbcPropertyValueProvider implements PropertyValueProvider<RelationalPersistentProperty> {
 
 	private final IdentifierProcessing identifierProcessing;
+	private final Set<Class<?>> vendorSpecificSupportedTypes;
 	private final PersistentPropertyPathExtension basePath;
 	private final ResultSetAccessor resultSet;
 
@@ -37,18 +40,26 @@ class JdbcPropertyValueProvider implements PropertyValueProvider<RelationalPersi
 	 *          {@link org.springframework.data.relational.core.sql.SqlIdentifier} from a property to a column label
 	 * @param basePath path from the aggregate root relative to which all properties get resolved.
 	 * @param resultSet the {@link ResultSetAccessor} from which to obtain the actual values.
+	 * @param vendorSpecificSupportedTypes
 	 */
-	JdbcPropertyValueProvider(IdentifierProcessing identifierProcessing, PersistentPropertyPathExtension basePath,
-			ResultSetAccessor resultSet) {
+	JdbcPropertyValueProvider(IdentifierProcessing identifierProcessing,
+							  PersistentPropertyPathExtension basePath,
+							  ResultSetAccessor resultSet,
+							  Set<Class<?>> vendorSpecificSupportedTypes) {
 
 		this.resultSet = resultSet;
 		this.basePath = basePath;
 		this.identifierProcessing = identifierProcessing;
+		this.vendorSpecificSupportedTypes = vendorSpecificSupportedTypes;
 	}
 
 	@Override
 	public <T> T getPropertyValue(RelationalPersistentProperty property) {
-		return (T) resultSet.getObject(getColumnName(property));
+		// Here I know the type.
+		property.getRawType();
+
+		// Now I need to pass the type to the ResultSetAccessor.
+		return (T) resultSet.getObject(getColumnName(property), property.getRawType(), vendorSpecificSupportedTypes);
 	}
 
 	/**
@@ -66,6 +77,6 @@ class JdbcPropertyValueProvider implements PropertyValueProvider<RelationalPersi
 	}
 
 	public JdbcPropertyValueProvider extendBy(RelationalPersistentProperty property) {
-		return new JdbcPropertyValueProvider(identifierProcessing, basePath.extendBy(property), resultSet);
+		return new JdbcPropertyValueProvider(identifierProcessing, basePath.extendBy(property), resultSet, vendorSpecificSupportedTypes);
 	}
 }

@@ -19,8 +19,10 @@ import java.sql.Array;
 import java.sql.JDBCType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,12 +71,13 @@ public class BasicJdbcConverter extends BasicRelationalConverter implements Jdbc
 	private final IdentifierProcessing identifierProcessing;
 
 	private final RelationResolver relationResolver;
+	private final Set<Class<?>> vendorSpecificSupportedTypes;
 
 	/**
 	 * Creates a new {@link BasicRelationalConverter} given {@link MappingContext} and a
 	 * {@link JdbcTypeFactory#unsupported() no-op type factory} throwing {@link UnsupportedOperationException} on type
 	 * creation. Use
-	 * {@link #BasicJdbcConverter(MappingContext, RelationResolver, CustomConversions, JdbcTypeFactory, IdentifierProcessing)}
+	 * {@link #BasicJdbcConverter(MappingContext, RelationResolver, CustomConversions, JdbcTypeFactory, IdentifierProcessing, Set)}
 	 * (MappingContext, RelationResolver, JdbcTypeFactory)} to convert arrays and large objects into JDBC-specific types.
 	 *
 	 * @param context must not be {@literal null}.
@@ -91,6 +94,7 @@ public class BasicJdbcConverter extends BasicRelationalConverter implements Jdbc
 		this.relationResolver = relationResolver;
 		this.typeFactory = JdbcTypeFactory.unsupported();
 		this.identifierProcessing = IdentifierProcessing.ANSI;
+		this.vendorSpecificSupportedTypes = Collections.emptySet();
 	}
 
 	/**
@@ -100,19 +104,22 @@ public class BasicJdbcConverter extends BasicRelationalConverter implements Jdbc
 	 * @param relationResolver used to fetch additional relations from the database. Must not be {@literal null}.
 	 * @param typeFactory must not be {@literal null}
 	 * @param identifierProcessing must not be {@literal null}
+	 * @param vendorSpecificSupportedTypes
 	 * @since 2.0
 	 */
 	public BasicJdbcConverter(
 			MappingContext<? extends RelationalPersistentEntity<?>, ? extends RelationalPersistentProperty> context,
 			RelationResolver relationResolver, CustomConversions conversions, JdbcTypeFactory typeFactory,
-			IdentifierProcessing identifierProcessing) {
+			IdentifierProcessing identifierProcessing, Set<Class<?>> vendorSpecificSupportedTypes) {
 
 		super(context, conversions);
 
 		Assert.notNull(typeFactory, "JdbcTypeFactory must not be null");
 		Assert.notNull(relationResolver, "RelationResolver must not be null");
 		Assert.notNull(identifierProcessing, "IdentifierProcessing must not be null");
+		Assert.notNull(vendorSpecificSupportedTypes, "VendorSpecificSupportedTypes must not be null");
 
+		this.vendorSpecificSupportedTypes = vendorSpecificSupportedTypes;
 		this.relationResolver = relationResolver;
 		this.typeFactory = typeFactory;
 		this.identifierProcessing = identifierProcessing;
@@ -358,9 +365,9 @@ public class BasicJdbcConverter extends BasicRelationalConverter implements Jdbc
 			this.path = new PersistentPropertyPathExtension(getMappingContext(), this.entity);
 			this.identifier = identifier;
 			this.key = key;
-			this.propertyValueProvider = new JdbcPropertyValueProvider(identifierProcessing, path, accessor);
+			this.propertyValueProvider = new JdbcPropertyValueProvider(identifierProcessing, path, accessor, vendorSpecificSupportedTypes);
 			this.backReferencePropertyValueProvider = new JdbcBackReferencePropertyValueProvider(identifierProcessing, path,
-					accessor);
+					accessor, vendorSpecificSupportedTypes);
 		}
 
 		private ReadingContext(RelationalPersistentEntity<T> entity, PersistentPropertyPathExtension rootPath,

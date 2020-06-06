@@ -15,7 +15,10 @@
  */
 package org.springframework.data.relational.core.dialect;
 
+import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.relational.core.sql.IdentifierProcessing;
 import org.springframework.data.relational.core.sql.IdentifierProcessing.LetterCasing;
@@ -194,5 +197,12 @@ public class PostgresDialect extends AbstractDialect {
 	@Override
 	public IdentifierProcessing getIdentifierProcessing() {
 		return IdentifierProcessing.create(Quoting.ANSI, LetterCasing.LOWER_CASE);
+	}
+
+	@Override
+	public Set<Class<?>> getVendorSpecificSupportedTypes() {
+		final HashSet<Class<?>> classes = new HashSet<>();
+		classes.add(OffsetDateTime.class);
+		return classes;
 	}
 }

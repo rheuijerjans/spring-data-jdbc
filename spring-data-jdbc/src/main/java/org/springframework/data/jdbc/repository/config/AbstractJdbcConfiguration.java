@@ -84,7 +84,7 @@ public class AbstractJdbcConfiguration {
 		DefaultJdbcTypeFactory jdbcTypeFactory = new DefaultJdbcTypeFactory(operations.getJdbcOperations());
 
 		return new BasicJdbcConverter(mappingContext, relationResolver, conversions, jdbcTypeFactory,
-			dialect.getIdentifierProcessing());
+			dialect.getIdentifierProcessing(), dialect.getVendorSpecificSupportedTypes());
 	}
 
 	/**

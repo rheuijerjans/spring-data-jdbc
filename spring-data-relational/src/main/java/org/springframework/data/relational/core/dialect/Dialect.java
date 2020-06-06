@@ -19,6 +19,9 @@ import org.springframework.data.relational.core.sql.IdentifierProcessing;
 import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.data.relational.core.sql.render.SelectRenderContext;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * Represents a dialect that is implemented by a particular database. Please note that not all features are supported by
  * all vendors. Dialects typically express this with feature flags. Methods for unsupported functionality may throw
@@ -80,5 +83,9 @@ public interface Dialect {
 	 */
 	default Escaper getLikeEscaper() {
 		return Escaper.DEFAULT;
+	}
+
+	default Set<Class<?>> getVendorSpecificSupportedTypes() {
+		return Collections.emptySet();
 	}
 }
