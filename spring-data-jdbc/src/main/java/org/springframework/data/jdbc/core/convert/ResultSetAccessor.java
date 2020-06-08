@@ -95,18 +95,11 @@ class ResultSetAccessor {
 
 			int index = findColumnIndex(columnName);
 
-			// this is the jdbc ResultSet.
-			// Returns an sql.Timestamp by default
-			// For postgresql, if called with resultSet.getObject(index, OffsetDateTime.class), it will map correctly to OffsetDateTime.
-
 			if (index <= 0) {
 				return null;
-			}
-
-			if (vendorSpecificSupportedTypes.contains(targetType)) {
+			} else if (vendorSpecificSupportedTypes.contains(targetType)) {
 				return resultSet.getObject(index, targetType);
 			}
-
 			return resultSet.getObject(index);
 
 		} catch (SQLException o_O) {
