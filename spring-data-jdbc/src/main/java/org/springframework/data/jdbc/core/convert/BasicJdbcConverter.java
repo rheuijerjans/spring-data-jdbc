@@ -332,12 +332,12 @@ public class BasicJdbcConverter extends BasicRelationalConverter implements Jdbc
 	@Override
 	public <T> T mapRow(RelationalPersistentEntity<T> entity, ResultSet resultSet, Object key) {
 		return new ReadingContext<T>(new PersistentPropertyPathExtension(getMappingContext(), entity),
-				new ResultSetAccessor(resultSet), Identifier.empty(), key).mapRow();
+				new ResultSetAccessor(resultSet, vendorSpecificSupportedTypes), Identifier.empty(), key).mapRow();
 	}
 
 	@Override
 	public <T> T mapRow(PersistentPropertyPathExtension path, ResultSet resultSet, Identifier identifier, Object key) {
-		return new ReadingContext<T>(path, new ResultSetAccessor(resultSet), identifier, key).mapRow();
+		return new ReadingContext<T>(path, new ResultSetAccessor(resultSet, vendorSpecificSupportedTypes), identifier, key).mapRow();
 	}
 
 	private class ReadingContext<T> {
@@ -367,7 +367,7 @@ public class BasicJdbcConverter extends BasicRelationalConverter implements Jdbc
 			this.key = key;
 			this.propertyValueProvider = new JdbcPropertyValueProvider(identifierProcessing, path, accessor, vendorSpecificSupportedTypes);
 			this.backReferencePropertyValueProvider = new JdbcBackReferencePropertyValueProvider(identifierProcessing, path,
-					accessor, vendorSpecificSupportedTypes);
+					accessor);
 		}
 
 		private ReadingContext(RelationalPersistentEntity<T> entity, PersistentPropertyPathExtension rootPath,

@@ -43,11 +43,14 @@ class ResultSetAccessor {
 	private final ResultSet resultSet;
 
 	private final Map<String, Integer> indexLookUp;
+	private final Set<Class<?>> vendorSpecificSupportedTypes;
 
-	ResultSetAccessor(ResultSet resultSet) {
+	ResultSetAccessor(ResultSet resultSet,
+					  Set<Class<?>> vendorSpecificSupportedTypes) {
 
 		this.resultSet = resultSet;
 		this.indexLookUp = indexColumns(resultSet);
+		this.vendorSpecificSupportedTypes = vendorSpecificSupportedTypes;
 	}
 
 	private static Map<String, Integer> indexColumns(ResultSet resultSet) {
@@ -82,14 +85,12 @@ class ResultSetAccessor {
 	 *
 	 * @param columnName the column name (label).
 	 * @param targetType
-	 * @param vendorSpecificSupportedTypes
 	 * @return
 	 * @see ResultSet#getObject(int)
 	 */
 	@Nullable
 	public Object getObject(String columnName,
-							Class<?> targetType,
-							Set<Class<?>> vendorSpecificSupportedTypes) {
+							Class<?> targetType) {
 
 		try {
 

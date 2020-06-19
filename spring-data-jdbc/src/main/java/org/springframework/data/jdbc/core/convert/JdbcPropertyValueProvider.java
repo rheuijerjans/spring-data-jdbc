@@ -55,7 +55,7 @@ class JdbcPropertyValueProvider implements PropertyValueProvider<RelationalPersi
 
 	@Override
 	public <T> T getPropertyValue(RelationalPersistentProperty property) {
-		return (T) resultSet.getObject(getColumnName(property), property.getRawType(), vendorSpecificSupportedTypes);
+		return (T) resultSet.getObject(getColumnName(property), property.getRawType());
 	}
 
 	/**
