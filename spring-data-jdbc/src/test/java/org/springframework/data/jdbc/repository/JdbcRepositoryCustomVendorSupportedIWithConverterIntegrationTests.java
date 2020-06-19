@@ -17,14 +17,18 @@ package org.springframework.data.jdbc.repository;
 
 import lombok.Data;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.convert.ReadingConverter;
+import org.springframework.data.convert.WritingConverter;
+import org.springframework.data.jdbc.core.convert.JdbcCustomConversions;
+import org.springframework.data.jdbc.core.convert.JdbcValue;
 import org.springframework.data.jdbc.repository.support.JdbcRepositoryFactory;
 import org.springframework.data.jdbc.testing.DatabaseProfileValueSource;
 import org.springframework.data.jdbc.testing.TestConfiguration;
@@ -37,14 +41,10 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.sql.JDBCType;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("postgres")
 @ProfileValueSourceConfiguration(DatabaseProfileValueSource.class)
 @Transactional
-public class JdbcRepositoryCustomVendorSupportedIntegrationTests {
+public class JdbcRepositoryCustomVendorSupportedIWithConverterIntegrationTests {
 
     @Configuration
     @Import(TestConfiguration.class)
@@ -65,12 +65,12 @@ public class JdbcRepositoryCustomVendorSupportedIntegrationTests {
 
         @Bean
         Class<?> testClass() {
-            return JdbcRepositoryCustomVendorSupportedIntegrationTests.class;
+            return JdbcRepositoryCustomVendorSupportedIWithConverterIntegrationTests.class;
         }
 
         @Bean
-        DummyEntityRepository dummyEntityRepository() {
-            return factory.getRepository(DummyEntityRepository.class);
+        JdbcCustomConversions jdbcCustomConversions() {
+            return new JdbcCustomConversions(asList(OffsetDateTimeToStringConverter.INSTANCE, StringToOffsetDateTimeConverter.INSTANCE));
         }
 
         @Bean
@@ -86,74 +86,63 @@ public class JdbcRepositoryCustomVendorSupportedIntegrationTests {
     public SpringMethodRule methodRule = new SpringMethodRule();
 
     @Autowired
-    DummyEntityRepository repository;
-
-    @Autowired
     DummyEntityRepositoryConverter dummyEntityConverterRepository;
 
     @Test // DATAJDBC-443
-    public void saveAndLoadAnEntity() {
+    @IfProfileValue(name = "current.database.is.not.mssql", value = "true")
+    public void saveAndLoadAnEntity_converterShouldTakePrecedence() {
 
+        OffsetDateTime now = OffsetDateTime.now();
 
-        Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+        dummyEntityConverterRepository.save(createDummyEntity(now));
 
-        DummyEntity entityBeforeSave = createDummyEntity(clock);
-
-        repository.save(entityBeforeSave);
-
-        // todo assert softly
-        assertThat(repository.findAll())
+        assertThat(dummyEntityConverterRepository.findAll())
                 .hasSize(1)
                 .first()
-                .satisfies(dummyEntity -> {
-                    assertThat(dummyEntity.getLocalDate()).isEqualTo(LocalDate.now(clock));
-                    assertThat(dummyEntity.getLocalTime()).isEqualTo(LocalTime.now(clock).withNano(111000000));
-                    assertThat(dummyEntity.getLocalDateTime()).isEqualTo(LocalDateTime.now(clock).withNano(111000000));
-                    assertThat(dummyEntity.getOffsetDateTime()).isEqualTo(OffsetDateTime.now(clock));
-                });
+                .satisfies(dummyEntity ->
+                        assertThat(dummyEntity.getOffsetDateTime()).isEqualTo(now));
     }
 
-    private static DummyEntity createDummyEntity(Clock clock) {
+    private static DummyEntity createDummyEntity(OffsetDateTime now) {
+
         DummyEntity entity = new DummyEntity();
-        entity.setLocalDate(LocalDate.now(clock));
-        entity.setLocalTime(LocalTime.now(clock).withNano(111000000));
-        entity.setLocalDateTime(LocalDateTime.now(clock).withNano(111000000));
-        entity.setOffsetDateTime(OffsetDateTime.now(clock));
-
-        return entity;
-    }
-
-    private static DummyEntityConverter createDummyEntityConverter(OffsetDateTime now) {
-
-        DummyEntityConverter entity = new DummyEntityConverter();
         entity.setOffsetDateTime(now);
 
         return entity;
     }
 
-    interface DummyEntityRepository extends CrudRepository<DummyEntity, Long> {
+
+    interface DummyEntityRepositoryConverter extends CrudRepository<DummyEntity, Long> {
     }
 
-    interface DummyEntityRepositoryConverter extends CrudRepository<DummyEntityConverter, Long> {
+
+    @WritingConverter
+    enum OffsetDateTimeToStringConverter implements Converter<OffsetDateTime, JdbcValue> {
+
+        INSTANCE;
+
+        @Override
+        public JdbcValue convert(OffsetDateTime source) {
+
+            Object value = source.toString();
+            return JdbcValue.of(value, JDBCType.VARCHAR);
+        }
+    }
+
+    @ReadingConverter
+    enum StringToOffsetDateTimeConverter implements Converter<String, OffsetDateTime> {
+
+        INSTANCE;
+
+        @Override
+        public OffsetDateTime convert(String source) {
+
+            return OffsetDateTime.parse(source);
+        }
     }
 
     @Data
     static class DummyEntity {
-
-        @Id
-        private Long id;
-
-        LocalDate localDate;
-
-        LocalTime localTime;
-
-        OffsetDateTime offsetDateTime;
-
-        LocalDateTime localDateTime;
-    }
-
-    @Data
-    static class DummyEntityConverter {
 
         @Id
         private Long id;

@@ -15,11 +15,6 @@
  */
 package org.springframework.data.relational.core.dialect;
 
-import java.time.OffsetDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.data.relational.core.sql.IdentifierProcessing;
 import org.springframework.data.relational.core.sql.IdentifierProcessing.LetterCasing;
 import org.springframework.data.relational.core.sql.IdentifierProcessing.Quoting;
@@ -28,6 +23,14 @@ import org.springframework.data.relational.core.sql.SqlIdentifier;
 import org.springframework.data.relational.core.sql.Table;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * An SQL dialect for Postgres.
@@ -202,6 +205,9 @@ public class PostgresDialect extends AbstractDialect {
 	@Override
 	public Set<Class<?>> getVendorSpecificSupportedTypes() {
 		final HashSet<Class<?>> classes = new HashSet<>();
+		classes.add(LocalDate.class);
+		classes.add(LocalTime.class);
+		classes.add(LocalDateTime.class);
 		classes.add(OffsetDateTime.class);
 		return classes;
 	}
