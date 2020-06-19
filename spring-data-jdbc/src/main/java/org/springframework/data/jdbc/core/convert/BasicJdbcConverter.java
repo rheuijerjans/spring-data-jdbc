@@ -365,7 +365,7 @@ public class BasicJdbcConverter extends BasicRelationalConverter implements Jdbc
 			this.path = new PersistentPropertyPathExtension(getMappingContext(), this.entity);
 			this.identifier = identifier;
 			this.key = key;
-			this.propertyValueProvider = new JdbcPropertyValueProvider(identifierProcessing, path, accessor, vendorSpecificSupportedTypes);
+			this.propertyValueProvider = new JdbcPropertyValueProvider(identifierProcessing, path, accessor);
 			this.backReferencePropertyValueProvider = new JdbcBackReferencePropertyValueProvider(identifierProcessing, path,
 					accessor);
 		}

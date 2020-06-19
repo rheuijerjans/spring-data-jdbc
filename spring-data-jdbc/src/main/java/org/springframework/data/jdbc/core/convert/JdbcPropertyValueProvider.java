@@ -31,7 +31,6 @@ import java.util.Set;
 class JdbcPropertyValueProvider implements PropertyValueProvider<RelationalPersistentProperty> {
 
 	private final IdentifierProcessing identifierProcessing;
-	private final Set<Class<?>> vendorSpecificSupportedTypes;
 	private final PersistentPropertyPathExtension basePath;
 	private final ResultSetAccessor resultSet;
 
@@ -40,17 +39,14 @@ class JdbcPropertyValueProvider implements PropertyValueProvider<RelationalPersi
 	 *          {@link org.springframework.data.relational.core.sql.SqlIdentifier} from a property to a column label
 	 * @param basePath path from the aggregate root relative to which all properties get resolved.
 	 * @param resultSet the {@link ResultSetAccessor} from which to obtain the actual values.
-	 * @param vendorSpecificSupportedTypes
 	 */
 	JdbcPropertyValueProvider(IdentifierProcessing identifierProcessing,
 							  PersistentPropertyPathExtension basePath,
-							  ResultSetAccessor resultSet,
-							  Set<Class<?>> vendorSpecificSupportedTypes) {
+							  ResultSetAccessor resultSet) {
 
 		this.resultSet = resultSet;
 		this.basePath = basePath;
 		this.identifierProcessing = identifierProcessing;
-		this.vendorSpecificSupportedTypes = vendorSpecificSupportedTypes;
 	}
 
 	@Override
@@ -73,6 +69,6 @@ class JdbcPropertyValueProvider implements PropertyValueProvider<RelationalPersi
 	}
 
 	public JdbcPropertyValueProvider extendBy(RelationalPersistentProperty property) {
-		return new JdbcPropertyValueProvider(identifierProcessing, basePath.extendBy(property), resultSet, vendorSpecificSupportedTypes);
+		return new JdbcPropertyValueProvider(identifierProcessing, basePath.extendBy(property), resultSet);
 	}
 }
