@@ -82,6 +82,11 @@ public interface Dialect {
 		return Escaper.DEFAULT;
 	}
 
+	/**
+	 * Returns the {@link VendorSupportedTypes} that the specific JDBC driver supports.
+	 *
+	 * @return the {@link VendorSupportedTypes}.
+	 */
 	default VendorSupportedTypes getVendorSpecificSupportedTypes() {
 		return VendorSupportedTypes.createDefault();
 	}

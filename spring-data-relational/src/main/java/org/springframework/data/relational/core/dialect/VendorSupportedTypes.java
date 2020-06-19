@@ -1,48 +1,47 @@
+/*
+ * Copyright 2020-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.data.relational.core.dialect;
 
-import java.sql.Types;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
+import org.springframework.data.util.Pair;
+
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+/**
+ * Holds sql to Java type mappings that a jdbc driver may support outside of the ones that
+ * are provided by default in the {@link java.sql.ResultSet#getObject(int)} implementation.
+ *
+ * @author Rick Heuijerjans
+ */
 public class VendorSupportedTypes {
 
-    private final HashMap<Class<?>, Set<Integer>> supportedTypeCombinations;
+    private final Set<Pair<Class<?>, Integer>> supportedTypeCombinations;
 
-    public VendorSupportedTypes(HashMap<Class<?>, Set<Integer>> supportedTypeCombinations) {
-        this.supportedTypeCombinations = supportedTypeCombinations;
+    public VendorSupportedTypes(List<Pair<Class<?>, Integer>> pairs) {
+        this.supportedTypeCombinations = new HashSet<>(pairs);
     }
 
-    public boolean isSupported(Class<?> clazz, Integer sqlType) {
-
-        Set<Integer> sqlTypes = supportedTypeCombinations.get(clazz);
-
-        if (sqlTypes == null) {
-            return false;
-        }
-
-        return sqlTypes.contains(sqlType);
+    public boolean isSupported(Class<?> clazz,
+                               Integer sqlType) {
+        return supportedTypeCombinations.contains(Pair.of(clazz, sqlType));
     }
 
     public static VendorSupportedTypes createDefault() {
-        return new VendorSupportedTypes(new HashMap<>());
-    }
-
-
-    // todo this is temporary
-    public static VendorSupportedTypes createPostgres() {
-
-        HashMap<Class<?>, Set<Integer>> map = new HashMap<>();
-
-        map.put(LocalDate.class, new HashSet<>(Arrays.asList(Types.DATE)));
-        map.put(LocalTime.class, new HashSet<>(Arrays.asList(Types.TIME)));
-        map.put(LocalDateTime.class, new HashSet<>(Arrays.asList(Types.TIMESTAMP)));
-        map.put(OffsetDateTime.class, new HashSet<>(Arrays.asList(Types.TIMESTAMP, Types.TIMESTAMP_WITH_TIMEZONE)));
-        return new VendorSupportedTypes(map);
+        return new VendorSupportedTypes(Collections.emptyList());
     }
 }
