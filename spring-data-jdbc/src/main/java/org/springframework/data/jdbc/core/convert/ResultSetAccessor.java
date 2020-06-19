@@ -15,17 +15,17 @@
  */
 package org.springframework.data.jdbc.core.convert;
 
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mapping.MappingException;
 import org.springframework.data.relational.core.dialect.VendorSupportedTypes;
 import org.springframework.lang.Nullable;
 import org.springframework.util.LinkedCaseInsensitiveMap;
-
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * Wrapper value object for a {@link java.sql.ResultSet} to be able to access raw values by
@@ -34,6 +34,7 @@ import java.util.Map;
  *
  * @author Jens Schauder
  * @author Mark Paluch
+ * @author Rick Heuijerjans
  * @since 2.0
  */
 class ResultSetAccessor {

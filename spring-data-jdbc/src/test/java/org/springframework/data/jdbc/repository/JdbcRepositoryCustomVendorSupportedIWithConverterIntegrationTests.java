@@ -33,7 +33,6 @@ import org.springframework.data.jdbc.repository.support.JdbcRepositoryFactory;
 import org.springframework.data.jdbc.testing.DatabaseProfileValueSource;
 import org.springframework.data.jdbc.testing.TestConfiguration;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.test.annotation.IfProfileValue;
 import org.springframework.test.annotation.ProfileValueSourceConfiguration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,6 +47,8 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests storing and retrieving extra data types that are supported by Postgres.
+ *
  * @author Rick Heuijerjans
  */
 @ContextConfiguration
@@ -89,7 +90,6 @@ public class JdbcRepositoryCustomVendorSupportedIWithConverterIntegrationTests {
     DummyEntityRepositoryConverter dummyEntityConverterRepository;
 
     @Test // DATAJDBC-443
-    @IfProfileValue(name = "current.database.is.not.mssql", value = "true")
     public void saveAndLoadAnEntity_converterShouldTakePrecedence() {
 
         OffsetDateTime now = OffsetDateTime.now();

@@ -20,8 +20,6 @@ import org.springframework.data.relational.core.mapping.PersistentPropertyPathEx
 import org.springframework.data.relational.core.mapping.RelationalPersistentProperty;
 import org.springframework.data.relational.core.sql.IdentifierProcessing;
 
-import java.util.Set;
-
 /**
  * {@link PropertyValueProvider} obtaining values from a {@link ResultSetAccessor}.
  *
@@ -40,10 +38,7 @@ class JdbcPropertyValueProvider implements PropertyValueProvider<RelationalPersi
 	 * @param basePath path from the aggregate root relative to which all properties get resolved.
 	 * @param resultSet the {@link ResultSetAccessor} from which to obtain the actual values.
 	 */
-	JdbcPropertyValueProvider(IdentifierProcessing identifierProcessing,
-							  PersistentPropertyPathExtension basePath,
-							  ResultSetAccessor resultSet) {
-
+	JdbcPropertyValueProvider(IdentifierProcessing identifierProcessing, PersistentPropertyPathExtension basePath, ResultSetAccessor resultSet) {
 		this.resultSet = resultSet;
 		this.basePath = basePath;
 		this.identifierProcessing = identifierProcessing;
