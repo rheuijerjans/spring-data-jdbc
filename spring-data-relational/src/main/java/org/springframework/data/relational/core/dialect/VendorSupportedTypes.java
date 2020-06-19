@@ -40,7 +40,7 @@ public class VendorSupportedTypes {
         HashMap<Class<?>, Set<Integer>> map = new HashMap<>();
 
         map.put(LocalDate.class, new HashSet<>(Arrays.asList(Types.DATE)));
-        map.put(LocalTime.class, new HashSet<>(Arrays.asList(Types.TIME, Types.TIME_WITH_TIMEZONE)));
+        map.put(LocalTime.class, new HashSet<>(Arrays.asList(Types.TIME)));
         map.put(LocalDateTime.class, new HashSet<>(Arrays.asList(Types.TIMESTAMP)));
         map.put(OffsetDateTime.class, new HashSet<>(Arrays.asList(Types.TIMESTAMP, Types.TIMESTAMP_WITH_TIMEZONE)));
         return new VendorSupportedTypes(map);
