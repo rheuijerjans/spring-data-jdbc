@@ -203,12 +203,7 @@ public class PostgresDialect extends AbstractDialect {
 	}
 
 	@Override
-	public Set<Class<?>> getVendorSpecificSupportedTypes() {
-		final HashSet<Class<?>> classes = new HashSet<>();
-		classes.add(LocalDate.class);
-		classes.add(LocalTime.class);
-		classes.add(LocalDateTime.class);
-		classes.add(OffsetDateTime.class);
-		return classes;
+	public VendorSupportedTypes getVendorSpecificSupportedTypes() {
+		return VendorSupportedTypes.createPostgres();
 	}
 }

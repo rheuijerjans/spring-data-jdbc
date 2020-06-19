@@ -18,6 +18,7 @@ package org.springframework.data.jdbc.core.convert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mapping.MappingException;
+import org.springframework.data.relational.core.dialect.VendorSupportedTypes;
 import org.springframework.lang.Nullable;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
@@ -25,7 +26,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Wrapper value object for a {@link java.sql.ResultSet} to be able to access raw values by
@@ -43,10 +43,10 @@ class ResultSetAccessor {
 	private final ResultSet resultSet;
 
 	private final Map<String, Integer> indexLookUp;
-	private final Set<Class<?>> vendorSpecificSupportedTypes;
+	private final VendorSupportedTypes vendorSpecificSupportedTypes;
 
 	ResultSetAccessor(ResultSet resultSet,
-					  Set<Class<?>> vendorSpecificSupportedTypes) {
+					  VendorSupportedTypes vendorSpecificSupportedTypes) {
 
 		this.resultSet = resultSet;
 		this.indexLookUp = indexColumns(resultSet);
@@ -93,12 +93,15 @@ class ResultSetAccessor {
 							Class<?> targetType) {
 
 		try {
-
 			int index = findColumnIndex(columnName);
 
 			if (index <= 0) {
 				return null;
-			} else if (vendorSpecificSupportedTypes.contains(targetType)) {
+			}
+
+			int sqlType = resultSet.getMetaData().getColumnType(index);
+
+			if (vendorSpecificSupportedTypes.isSupported(targetType, sqlType)) {
 				return resultSet.getObject(index, targetType);
 			}
 			return resultSet.getObject(index);

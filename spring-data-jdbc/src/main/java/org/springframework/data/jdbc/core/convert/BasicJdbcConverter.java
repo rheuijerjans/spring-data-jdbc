@@ -38,6 +38,7 @@ import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.relational.core.conversion.BasicRelationalConverter;
 import org.springframework.data.relational.core.conversion.RelationalConverter;
+import org.springframework.data.relational.core.dialect.VendorSupportedTypes;
 import org.springframework.data.relational.core.mapping.PersistentPropertyPathExtension;
 import org.springframework.data.relational.core.mapping.RelationalPersistentEntity;
 import org.springframework.data.relational.core.mapping.RelationalPersistentProperty;
@@ -71,13 +72,13 @@ public class BasicJdbcConverter extends BasicRelationalConverter implements Jdbc
 	private final IdentifierProcessing identifierProcessing;
 
 	private final RelationResolver relationResolver;
-	private final Set<Class<?>> vendorSpecificSupportedTypes;
+	private final VendorSupportedTypes vendorSpecificSupportedTypes;
 
 	/**
 	 * Creates a new {@link BasicRelationalConverter} given {@link MappingContext} and a
 	 * {@link JdbcTypeFactory#unsupported() no-op type factory} throwing {@link UnsupportedOperationException} on type
 	 * creation. Use
-	 * {@link #BasicJdbcConverter(MappingContext, RelationResolver, CustomConversions, JdbcTypeFactory, IdentifierProcessing, Set)}
+	 * {@link #BasicJdbcConverter(MappingContext, RelationResolver, CustomConversions, JdbcTypeFactory, IdentifierProcessing, VendorSupportedTypes)}
 	 * (MappingContext, RelationResolver, JdbcTypeFactory)} to convert arrays and large objects into JDBC-specific types.
 	 *
 	 * @param context must not be {@literal null}.
@@ -94,7 +95,7 @@ public class BasicJdbcConverter extends BasicRelationalConverter implements Jdbc
 		this.relationResolver = relationResolver;
 		this.typeFactory = JdbcTypeFactory.unsupported();
 		this.identifierProcessing = IdentifierProcessing.ANSI;
-		this.vendorSpecificSupportedTypes = Collections.emptySet();
+		this.vendorSpecificSupportedTypes = VendorSupportedTypes.createDefault();
 	}
 
 	/**
@@ -110,7 +111,7 @@ public class BasicJdbcConverter extends BasicRelationalConverter implements Jdbc
 	public BasicJdbcConverter(
 			MappingContext<? extends RelationalPersistentEntity<?>, ? extends RelationalPersistentProperty> context,
 			RelationResolver relationResolver, CustomConversions conversions, JdbcTypeFactory typeFactory,
-			IdentifierProcessing identifierProcessing, Set<Class<?>> vendorSpecificSupportedTypes) {
+			IdentifierProcessing identifierProcessing, VendorSupportedTypes vendorSpecificSupportedTypes) {
 
 		super(context, conversions);
 
